@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Магнат - Магазин продуктов премиум-класса{% endblock %}</title>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+        }
+
+        .category-card {
+            transition: transform 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-card {
+            border: none;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        }
+
+        .discount-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 2;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+
+        .product-image {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .category-image {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        /* Супер-компактный футер */
+        .compact-footer {
+            padding-top: 1.5rem;
+            padding-bottom: 1rem;
+        }
+
+        .compact-footer h6 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            transition: color 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .footer-links a:hover {
+            color: #fff !important;
+        }
+
+        .footer-contact {
+            font-size: 0.85rem;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-success sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'product:index' %}">
+            <i class="bi bi-shop me-2"></i>МАГНАТ
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Основное меню -->
+            <div class="navbar-nav me-auto">
+                <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}"
+                   href="{% url 'product:index' %}">
+                    Главная
+                </a>
+
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name in 'category_detail,category_list' %}active{% endif %}"
+                       href="#" data-bs-toggle="dropdown">
+                        Категории
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% for category in categories %}
+                        <li>
+                            <a class="dropdown-item" href="{% url 'product:category_detail' category.slug %}">
+                                {{ category.name }}
+                                <span class="badge bg-success float-end">{{ category.products.count }}</span>
+                            </a>
+                        </li>
+                        {% empty %}
+                        <li><a class="dropdown-item text-muted" href="#">Категории отсутствуют</a></li>
+                        {% endfor %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-success fw-bold" href="{% url 'product:category_list' %}">
+                                <i class="bi bi-grid-3x3-gap me-1"></i>Все категории
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <a class="nav-link {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}"
+                   href="{% url 'product:product_list' %}">
+                    Все товары
+                </a>
+
+                <a class="nav-link" href="#">
+                    <span class="badge bg-danger">Акции</span>
+                </a>
+            </div>
+
+            <!-- Поиск и корзина -->
+            <div class="navbar-nav ms-auto">
+                <form class="d-flex me-3" method="get" action="{% url 'product:product_search' %}">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="q"
+                               placeholder="Поиск продуктов..."
+                               aria-label="Search"
+                               value="{{ request.GET.q }}">
+                        <button class="btn btn-outline-light" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="nav-item dropdown">
+                    {% if user.is_authenticated %}
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'users:profile' %}">Профиль</a></li>
+                        <li><a class="dropdown-item" href="{% url 'users:logout' %}">Выйти</a></li>
+                    </ul>
+                    {% else %}
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-person me-1"></i>Аккаунт
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'users:login' %}">Войти</a></li>
+                        <li><a class="dropdown-item" href="{% url 'users:register' %}">Регистрация</a></li>
+                    </ul>
+                    {% endif %}
+                </div>
+
+                <a class="nav-link position-relative" href="{% url 'product:cart' %}">
+                    <i class="bi bi-cart3 fs-5"></i>
+                    <span class="cart-badge badge bg-danger rounded-pill">{{ cart_items_count }}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Основной контент -->
+<main>
+    {% block content %}
+    {% endblock %}
+</main>
+
+<!-- Супер-компактный футер -->
+<footer class="bg-dark text-white compact-footer">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-3 mb-lg-0">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-shop me-2 text-success"></i>
+                    <span class="fw-bold">МАГНАТ</span>
+                    <span class="text-muted ms-3 small">© 2024</span>
+                </div>
+            </div>
+
+            <div class="col-lg-6 text-lg-end">
+                <div class="d-flex flex-column flex-lg-row justify-content-lg-end gap-3">
+                    <a href="{% url 'product:category_list' %}" class="text-muted text-decoration-none small">
+                        Категории
+                    </a>
+                    <a href="{% url 'product:product_list' %}" class="text-muted text-decoration-none small">
+                        Товары
+                    </a>
+                    <a href="#delivery" class="text-muted text-decoration-none small">
+                        Доставка
+                    </a>
+                    <a href="#" class="text-muted text-decoration-none small">
+                        Контакты
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <hr class="text-muted my-2">
+
+        <div class="row">
+            <div class="col-12 text-center">
+                <small class="text-muted">
+                    <i class="bi bi-telephone me-1"></i>+7 (999) 123-45-67 •
+                    <i class="bi bi-clock ms-2 me-1"></i>8:00-22:00 •
+                    <i class="bi bi-envelope ms-2 me-1"></i>info@magnat.ru
+                </small>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Получаем CSRF токен
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+        // Функции для корзины
+        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                const productName = this.closest('.card')?.querySelector('.card-title')?.textContent || 'Товар';
+
+                // Реальный AJAX запрос
+                fetch(`/cart/add/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Обновляем счетчик корзины
+                        const cartBadge = document.querySelector('.cart-badge');
+                        if (cartBadge) {
+                            cartBadge.textContent = data.cart_items_count;
+                        }
+
+                        // Показать уведомление
+                        showNotification(data.message, 'success');
+
+                        // Визуальная обратная связь
+                        this.innerHTML = '<i class="bi bi-check-lg"></i>';
+                        this.classList.remove('btn-success');
+                        this.classList.add('btn-outline-success');
+
+                        setTimeout(() => {
+                            this.innerHTML = '<i class="bi bi-cart-plus"></i>';
+                            this.classList.remove('btn-outline-success');
+                            this.classList.add('btn-success');
+                        }, 2000);
+                    } else {
+                        showNotification(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Ошибка при добавлении в корзину', 'danger');
+                });
+            });
+        });
+
+        // Функция показа уведомлений
+        function showNotification(message, type = 'info') {
+            // Удаляем предыдущие уведомления
+            document.querySelectorAll('.alert.position-fixed').forEach(alert => {
+                alert.remove();
+            });
+
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alert.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                    <span>${message}</span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(alert);
+
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 3000);
+        }
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

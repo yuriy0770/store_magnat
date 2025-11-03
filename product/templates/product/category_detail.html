@@ -1,0 +1,77 @@
+{% extends 'product/base.html' %}
+{% load static %}
+
+{% block title %}Магнат - {{ category.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Хлебные крошки -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'product:index' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'product:category_list' %}">Категории</a></li>
+            <li class="breadcrumb-item active">{{ category.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Заголовок категории -->
+    <div class="row mb-5">
+        <div class="col-md-8">
+            <h1 class="display-5 fw-bold">{{ category.name }}</h1>
+            {% if category.description %}
+                <p class="lead text-muted">{{ category.description }}</p>
+            {% endif %}
+        </div>
+        <div class="col-md-4 text-md-end">
+            {% if category.image %}
+                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-fluid rounded" style="max-height: 150px;">
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Товары категории -->
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="card product-card h-100">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top product-image" alt="{{ product.name }}">
+                {% elif product.image_url %}
+                    <img src="{{ product.image_url }}" class="card-img-top product-image" alt="{{ product.name }}">
+                {% else %}
+                    <img src="{% static 'images/default-product.jpg' %}" class="card-img-top product-image" alt="{{ product.name }}">
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
+                    <h6 class="card-title">{{ product.name }}</h6>
+                    
+                    {% if product.short_description %}
+                        <p class="card-text text-muted small flex-grow-1">{{ product.short_description|truncatewords:15 }}</p>
+                    {% endif %}
+                    
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-success fw-bold">{{ product.price }} ₽</span>
+                            <small class="text-muted">{{ product.sku }}</small>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <a href="{% url 'product:product_detail' product.slug %}" class="btn btn-outline-success btn-sm">
+                                Подробнее
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <h3 class="text-muted mt-3">Товары отсутствуют</h3>
+            <p class="text-muted">В этой категории пока нет товаров</p>
+            <a href="{% url 'product:product_list' %}" class="btn btn-success">Все товары</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
