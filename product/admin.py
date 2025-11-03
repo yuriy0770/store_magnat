@@ -224,19 +224,16 @@ class AdminProduct(admin.ModelAdmin):
     quantity_display.short_description = 'Остаток'
 
     def profit_margin(self, obj):
-        """
-        Исправленный метод расчета маржи
-        """
         if obj.price and obj.price > 0:
-            # Используем Decimal для расчетов
-            cost_price = obj.price * Decimal('0.6')  # себестоимость 60%
+
+            cost_price = obj.price * Decimal('0.6')
             margin = ((obj.price - cost_price) / obj.price) * 100
 
             color = 'green' if margin > 30 else 'orange' if margin > 15 else 'red'
             return format_html(
                 '<span style="color: {}; font-weight: bold;">{:.1f}%</span>',
                 color,
-                float(margin)  # конвертируем в float для форматирования
+                float(margin)
             )
         return "—"
 

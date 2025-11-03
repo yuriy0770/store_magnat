@@ -5,7 +5,6 @@
 
 {% block content %}
 <div class="container py-5">
-    <!-- Хлебные крошки -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'product:index' %}">Главная</a></li>
@@ -14,7 +13,6 @@
         </ol>
     </nav>
 
-    <!-- Заголовок категории -->
     <div class="row mb-5">
         <div class="col-md-8">
             <h1 class="display-5 fw-bold">{{ category.name }}</h1>
@@ -29,7 +27,6 @@
         </div>
     </div>
 
-    <!-- Товары категории -->
     <div class="row g-4">
         {% for product in products %}
         <div class="col-lg-3 col-md-4 col-sm-6">

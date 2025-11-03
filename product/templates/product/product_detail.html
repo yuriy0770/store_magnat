@@ -5,7 +5,6 @@
 
 {% block content %}
 <div class="container py-5">
-    <!-- Хлебные крошки -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'product:index' %}">Главная</a></li>
@@ -16,7 +15,6 @@
     </nav>
 
     <div class="row">
-        <!-- Изображение товара -->
         <div class="col-md-6">
             <div class="card border-0">
                 {% if product.image %}
@@ -29,7 +27,6 @@
             </div>
         </div>
 
-        <!-- Информация о товаре -->
         <div class="col-md-6">
             <h1 class="display-6 fw-bold">{{ product.name }}</h1>
             
@@ -42,7 +39,6 @@
                 <p class="lead">{{ product.short_description }}</p>
             {% endif %}
 
-            <!-- Наличие -->
             <div class="mb-4">
                 {% if product.quantity > 0 %}
                     <span class="text-success">
@@ -55,7 +51,6 @@
                 {% endif %}
             </div>
 
-            <!-- Кнопки действий -->
             <div class="d-flex gap-3 mb-4">
                 {% if product.quantity > 0 %}
                     <button class="btn btn-success btn-lg add-to-cart" data-product-id="{{ product.id }}">
@@ -71,7 +66,6 @@
                 </button>
             </div>
 
-            <!-- Детали -->
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">О товаре</h5>
@@ -96,7 +90,6 @@
         </div>
     </div>
 
-    <!-- Похожие товары -->
     {% if related_products %}
     <section class="mt-5">
         <h3 class="mb-4">Похожие товары</h3>
