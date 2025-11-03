@@ -7,7 +7,7 @@ class User(AbstractUser):
     address = models.TextField(blank=True, verbose_name='Адрес')
     email_verified = models.BooleanField(default=False, verbose_name='Email подтвержден')
 
-    # Убираем конфликты с обратными связями
+
     groups = models.ManyToManyField(
         'auth.Group',
         verbose_name='groups',

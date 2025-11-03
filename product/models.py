@@ -1,8 +1,7 @@
 import uuid
-from django.contrib.auth.models import User
 from django.db import models
+from django.conf import settings
 from django.core.validators import MinValueValidator
-
 
 class Category(models.Model):
     name = models.CharField(max_length=50, verbose_name='Название')
@@ -48,17 +47,12 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'
-        ordering = ['name']  # добавлено: сортировка по названию
+        ordering = ['name']
 
-
-from django.db import models
-from django.conf import settings
-from django.core.validators import MinValueValidator
-from decimal import Decimal
 
 class Cart(models.Model):
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # Используем кастомную модель пользователя
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         null=True,
         blank=True,

@@ -2,14 +2,10 @@ from django.shortcuts import render
 from django.views.generic import ListView, DetailView, TemplateView
 from django.db.models import Q
 from .models import Category
-from django.views.decorators.csrf import csrf_exempt
-from .models import Product, CartItem
-from .utils import get_or_create_cart, get_cart_items_count
+from .models import Product
 from django.http import JsonResponse
-from django.utils.decorators import method_decorator
 from django.views import View
 from django.shortcuts import get_object_or_404
-import json
 class IndexView(TemplateView):
     template_name = 'product/index.html'
 
@@ -146,14 +142,12 @@ def simple_add_to_cart(request, product_id):
         try:
             product = get_object_or_404(Product, id=product_id, is_active=True, quantity__gt=0)
 
-            # Инициализируем корзину в сессии
             if 'cart' not in request.session:
                 request.session['cart'] = {}
 
             cart = request.session['cart']
             product_id_str = str(product_id)
 
-            # Добавляем или увеличиваем количество товара
             if product_id_str in cart:
                 cart[product_id_str] += 1
             else:
@@ -161,7 +155,6 @@ def simple_add_to_cart(request, product_id):
 
             request.session.modified = True
 
-            # Считаем общее количество товаров в корзине
             total_quantity = sum(cart.values())
 
             return JsonResponse({
@@ -212,7 +205,6 @@ class SimpleCartView(View):
                 total_quantity += quantity
 
             except (Product.DoesNotExist, ValueError):
-                # Если товар не найден, пропускаем
                 continue
 
         context = {
@@ -234,7 +226,6 @@ def simple_remove_from_cart(request, product_id):
             product_id_str = str(product_id)
 
             if product_id_str in cart:
-                # Получаем название товара для сообщения
                 try:
                     product = Product.objects.get(id=product_id)
                     product_name = product.name
