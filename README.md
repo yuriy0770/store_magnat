@@ -21,7 +21,7 @@ Django-приложение для онлайн-продажи продукто�
 ## 🚀 Установка и запуск
 
 ### 1. Клонирование репозитория
-```bash
+
 git clone https://github.com/yuriy0770/store_magnat.git
 cd store_magnat
 
